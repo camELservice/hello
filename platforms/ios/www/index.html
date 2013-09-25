@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+        <script type="text/javascript" src="phonegap.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        
+        <title>APP Test!</title>
+    </head>
+    <body>
+
+
+        
+Account:<input name="account" size=15" type="text" value=""><br>
+Password:<input name="password" size=15" type="password" value=""><br><br>
+
+<button onclick="start()">Start</button>&nbsp;<button onclick="stop()">Stop</button><br><br>
+
+Message:<textarea cols="20" id="message" rows="2"></textarea>
+
+<script type="text/javascript">
+
+var intervalid;
+
+function g_sendrequest_eval(url) {
+
+    var http_request=false;
+
+        if(window.XMLHttpRequest) { // Mozilla, Safari,...
+
+        http_request = new XMLHttpRequest();
+    }
+    else {
+        if(window.ActiveXObject) { // IE
+
+            try {
+
+                http_request = new ActiveXObject("Msxml2.XMLHTTP"); // 新版的IE
+            }
+            catch(e) {
+
+                try {
+
+                    http_request = new ActiveXObject("Microsoft.XMLHTTP"); // 舊版的IE
+                }
+                catch(e) {}
+            }
+        }
+    }
+
+    http_request.onreadystatechange = function() {
+
+        if(http_request.readyState==4) { // everything is good, the response is received
+
+            if(http_request.status==200) {
+
+                // alert(http_request.responseText);
+                eval(http_request.responseText);
+            }
+            else {
+
+                alert(http_request.status);
+            }
+        }
+    };
+
+    http_request.open('GET',url,true);
+    http_request.send(null);
+}
+
+function getmessage() {
+
+    var uri="http://html5.jimmy.game.tw/app_getmessage.php?";
+
+    uri+="tn="+encodeURIComponent(document.getElementsByName('account')[0].value);
+    uri+="&dr="+encodeURIComponent(document.getElementsByName('password')[0].value);
+
+    g_sendrequest_eval(uri);
+}
+
+function start() {
+
+    intervalid=window.setInterval("getmessage()",10000);
+}
+
+function stop() {
+
+    window.clearInterval(intervalid);
+}
+
+</script>
+        
+    </body>
+</html>

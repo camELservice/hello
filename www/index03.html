@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+        <script type="text/javascript" src="phonegap.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        
+        <title>源豐千禧屋</title>
+        <style>* { font-size:12pt;}</style>
+    </head>
+    <body>
+
+
+
+<audio id="sound" src=""></audio>
+
+<table cellpadding="0" id="main" style="border-collapse:collapse; height:100%; left:0; margin:0; position:absolute; top:0; width:100%">
+    <tr>
+        <td style="background-color:#0000ff; height:10%"><table style="width:100%">
+    <tr>
+        <td style="text-align:center; vertical-align:middle; width:33%"><button disabled id="previousbutton" onclick="previousmessage()">上一則訊息</button></td>
+        <td id="counter" style="color:#ffffff; text-align:center; vertical-align:middle; width:34%"></td>
+        <td style="text-align:center; vertical-align:middle; width:33%"><button disabled id="nextbutton" onclick="nextmessage()">下一則訊息</button></td>
+    </tr>
+</table></td>
+    </tr>
+    <tr>
+        <td style="height:90%"><div id="content" style="height:100%; overflow:scroll; width:100%"></div></td>
+    </tr>
+</table>
+
+<table cellpadding="0" id="login" style="background-color:#ffffff; border-collapse:collapse; height:100%; left:0; margin:0; position:absolute; top:0; width:100%">
+    <tr>
+        <td style="text-align:center">源豐千禧屋<br><br>帳號：<input name="tn" size="20" typpe="text" value="jimmy"><br>密碼：<input name="dr" size="20" type="password" value="1111"><br><br><input onclick="login()" type="button" value="登入"></td>
+    </tr>
+</table>
+
+<script type="text/javascript">
+
+var g_communityid=2;
+var g_communityname='源豐千禧屋';
+var g_intervalsecond=10000;
+var g_messageid=0;
+var g_messageindex=0;
+var g_messagenumber=0;
+var g_nextmessageid=0;
+var g_previousmessageid=0;
+var g_residentid=0;
+var g_showmessage=false;
+var g_url='http://ecommunitydev.jiestrong.tw/';
+//var g_url="http://" + document.domain + "/";
+
+function g_sendrequest_eval(url) {
+
+    var http_request=false;
+
+    if(window.XMLHttpRequest) { // Mozilla, Safari,...
+
+        http_request = new XMLHttpRequest();
+    }
+    else {
+        if(window.ActiveXObject) { // IE
+
+            try {
+
+                http_request = new ActiveXObject("Msxml2.XMLHTTP"); // 新版的IE
+            }
+            catch(e) {
+
+                try {
+
+                    http_request = new ActiveXObject("Microsoft.XMLHTTP"); // 舊版的IE
+                }
+                catch(e) {}
+            }
+        }
+    }
+
+    http_request.onreadystatechange = function() {
+
+        if(http_request.readyState==4) { // everything is good, the response is received
+
+            if(http_request.status==200) {
+
+                // alert(http_request.responseText);
+                eval(http_request.responseText);
+            }
+            else {
+
+                alert(http_request.status);
+            }
+        }
+    };
+
+    http_request.open('GET',url,true);
+    http_request.send(null);
+}
+
+function countmessage() {
+
+    var uri=g_url+'messageapp_countmessage.php?';
+
+    uri+="residentid="+g_residentid;
+
+    
+    g_sendrequest_eval(uri);
+}
+
+function login() {
+
+    var uri=g_url+"messageapp_login.php?";
+
+    uri+="communityid="+g_communityid;
+    uri+="&tn="+encodeURIComponent(document.getElementsByName('tn')[0].value);
+    uri+="&dr="+encodeURIComponent(document.getElementsByName('dr')[0].value);
+
+    
+    g_sendrequest_eval(uri);
+}
+
+function nextmessage() {
+
+    g_messageindex++;
+
+    if(g_messageindex>1) document.getElementById('previousbutton').disabled=false;
+    if(g_messageindex>=g_messagenumber) { g_messageindex=g_messagenumber; document.getElementById('nextbutton').disabled=true; }
+
+    document.getElementById('counter').innerHTML=g_messageindex+'／'+g_messagenumber;
+
+    showmessage(g_nextmessageid);
+}
+
+function previousmessage() {
+
+    g_messageindex--;
+
+    if(g_messageindex<g_messagenumber) document.getElementById('nextbutton').disabled=false;
+    if(g_messageindex<=1) { g_messageindex=1; document.getElementById('previousbutton').disabled=true; }
+
+    document.getElementById('counter').innerHTML=g_messageindex+'／'+g_messagenumber;
+
+    showmessage(g_previousmessageid);
+}
+
+function showmessage(messageid) {
+
+    var uri=g_url+'messageapp_showmessage.php?';
+
+    uri+="residentid="+g_residentid;
+    uri+="&messageid="+messageid;
+
+    
+    g_sendrequest_eval(uri);
+}
+
+// =================================================================================================
+
+document.getElementById('sound').src=g_url+'sound/notify.mp3';
+
+if(g_residentid==0) {
+
+    document.getElementById('login').style.visibility='visible';
+    document.getElementsByName('tn')[0].focus();
+}
+
+</script>
+        
+        
+    </body>
+</html>
